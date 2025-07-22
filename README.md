@@ -1,38 +1,40 @@
-# REST API for Equation Evaluation
+# afreshstart API
 
-This project provides a simple REST API that retrieves input variables from a Google Sheet, evaluates stored mathematical equations, and exports the results to a SQL database such as Snowflake.
+This project provides a FastAPI service that exposes a simple REST endpoint to fetch data from a Google Sheet. It can be used as a middle layer between Google Sheets and a frontend application.
 
 ## Setup
 
-1. Install dependencies:
+1. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-2. Create a `.env` file with the required credentials for Google Sheets and your SQL database. Example variables:
-   - `GOOGLE_SHEET_KEY`
-   - `GOOGLE_SERVICE_ACCOUNT_FILE`
-   - `DATABASE_URL` (SQLAlchemy connection string)
-
-3. Run the API:
+2. **Create a `.env` file** in the project root with the following variables:
    ```bash
-   python -m app.main
+   GOOGLE_SERVICE_ACCOUNT_FILE=/path/to/credentials.json
+   GOOGLE_SHEET_ID=your_google_sheet_id
+   ```
+   The service account JSON file is obtained from the Google Cloud Console (see below).
+
+3. **Run the API**
+   ```bash
+   uvicorn app.main:app --reload
    ```
 
-## Endpoints
+## Usage
 
-- `POST /equations` – Add a new equation.
-- `GET /equations` – List stored equations.
-- `POST /run` – Retrieve variables from the Google Sheet, evaluate equations, and export results to the database.
+- `GET /data?range=Sheet1!A1:C10` – Retrieves the specified range of values from the configured Google Sheet.
 
-Stored equations are simple Python expressions that operate on variables from the Google Sheet. For example:
+## Generating Google API Credentials
 
-```json
-{"name": "total", "expression": "a + b * c"}
-```
+1. Go to <https://console.cloud.google.com/> and create a new project (or select an existing one).
+2. Enable the **Google Sheets API** for the project.
+3. Navigate to **APIs & Services → Credentials** and create a **Service Account**.
+4. Generate a JSON key for the service account and download the file. Save the path to this file in `GOOGLE_SERVICE_ACCOUNT_FILE` in your `.env`.
+5. Share your Google Sheet with the service account's email address so it has read access.
+6. Copy the sheet ID from the sheet URL (the part between `/d/` and `/edit`) and set it as `GOOGLE_SHEET_ID` in the `.env` file.
 
 ## Notes
 
-- Use the Google Sheet's first row as variable names.
-- Supported databases depend on the SQLAlchemy driver specified in `DATABASE_URL`.
-- Snowflake is recommended for production, but any SQLAlchemy-compatible database can be used for testing.
+- CORS is enabled for all origins by default so the API can be called from any frontend during development.
+- Only read access is required for the service account. No user data is stored by this service.

@@ -1,9 +1,4 @@
-Flask
-pandas
-SQLAlchemy
-snowflake-connector-python[gcp]>=2.7.9
-snowflake-sqlalchemy
-psycopg2-binary
-openpyxl
-gspread
-oauth2client
+fastapi
+uvicorn
+python-dotenv
+google-api-python-client
